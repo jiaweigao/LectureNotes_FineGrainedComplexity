@@ -1,0 +1,172 @@
+\documentclass[letterpaper, 12pt]{article}
+ 
+\usepackage{jiawei}
+\usepackage{complexity}
+\usepackage{tikz}
+\usepackage[charter]{mathdesign} 
+
+\headfoot{FGC Notes}{Lecture 10}
+ 
+\newcommand{\Perm}{\mathbf{Perm}}
+\newcommand{\CAPP}{\mathbf{CAPP}}
+\newcommand{\PIT}{\mathbf{PIT}}
+\newcommand{\Time}[1]{\mathsf{TIME}[#1]}
+\newcommand{\NTime}[1]{\mathsf{NTIME}[#1]}
+\newcommand{\Size}[1]{\mathsf{Size}(#1)}
+\newcommand{\Prob}[2]{\mathrm{Prob}_{#1}[#2]}
+ 
+\newcommand{\subexp}{2^{n^{o(1)}}}
+ 
+\begin{document}
+	%\settitle{9. Hardness from Derandomization}
+	\title{FGC Lecture 10}
+	\date{}
+	\maketitle
+
+\section{Hardness from Derandomization}
+\btitle{1. Kannan's lower bound}
+
+\[\Sigma_3^\E \nsubseteq \Size{2^{o(n)})}\]
+By re-scaling to $T(n)$ s.t. $n^{\omega(1)} \leq T(n) \leq 2^n$, we get
+\[\Sigma_3^{T(n)} \nsubseteq \Size{T(n)^{o(1)}}\]
+
+\btitle{2. Last lecture we showed}
+
+Assume $\EXP \subseteq \Ppoly$ and $\CAPP \in \Time{\subexp}$ (therefore in $\NTime{\subexp}$),
+\begin{enumerate}[a]
+	\item $\EXP \subseteq \Sigma_2^\P \subseteq \Sigma_3^\P \subseteq \P^\Perm \subseteq \EXP$ (Meyer's Theorem)
+	\item If $\Perm \in \Ppoly$ then $\Perm \in MA$.\\
+	Guess circuits. ``Purify'' it in probabilistic polynomial time. Use as oracle.
+	\item $\MA \subseteq \NTime{\subexp}$. Replace probabilistic checking with $\CAPP$.
+	\item $\EXP = \P^\Perm = \MA = \Sigma_3^\P = \NTime{\subexp}$.
+	\item Rescale: Choose a $T(n) = n^{\omega(1)}$ s.t. $\Sigma_3^\P \subseteq \NEXP$.
+	\item So $\NEXP \nsubseteq \Ppoly$.
+\end{enumerate}
+
+\sep
+
+\begin{theorem}
+If $\PIT \in \NTime{\subexp}$, then either $\Perm \notin \AlgP/\poly$, or $\NEXP \nsubseteq \Ppoly$.
+\end{theorem}
+
+\begin{proof}
+	Assume $\PIT \in \NTime{\subexp}$, and $\NEXP \subseteq \Ppoly$, $\Perm \in \AlgP/\poly$.
+	
+	Only steps (2.b) and (2.c) in the above proof need to change.
+	
+	(2.b)': If $\Perm \in \AlgP/\poly$, then $P^\Perm \subseteq \NP^\PIT$. (This is stronger than (2.b). Now we only allow to do PIT.)
+	
+	(2.c)': Assume also $\PIT \in \NTime{\subexp}$. Then $\P^\Perm \subseteq \NTime{\subexp}$.
+	
+	Using downward self-reducibility, aka. expansion by minors, we check
+	\[\Perm(M_{n\times n}) = \sum_{i = 1}^n m_{1,i} \Perm([M_{n\times n}]_{-1,i})\] 
+	and
+	\[\Perm(M_{1\times 1}) = m_{1,1}\]
+	
+	Given $C_n$, an algebraic circuit that computes $\Perm$ on $n \times n$ matrices. We define $C_1, \dots, C_{n-1}$ s.t. 
+	\[C_i =
+	\left(
+	\begin{array}{cc}
+	\begin{matrix}
+	1 & &\\
+	& \ddots &\\
+	& & 1
+	\end{matrix} & \mathbf{0}\\
+	\mathbf{0} & M_{i\times i}
+	\end{array}
+	\right)
+	 \]
+	
+	Verify the identities
+	\[C_i(M) = \sum_{j = 1}^i m_{1,j} D_{i-1}(M_{-1,j})\]
+	using PIT.
+	
+	Because (2.c)' helps us get rid of the $\PIT$ oracle, we have (2.d).
+\end{proof}
+
+\section{Natural Proofs}
+
+How to prove circuit lower bounds?
+
+(A) Characterize what circuits can compute.
+
+(B) Show some particular function doesn't meet (A).
+
+\begin{definition}
+$f$ is a boolean function, given by its truth table.
+A property $N(f)$ is either True or False. (We assume $N(f)$ is True when $f$ is hard)
+
+$N$ is a \emph{Natural Property} if
+\begin{enumerate}
+	\item $N$ is \emph{constructive}: $N \in \P = \Time{2^{O(n)}}$.
+	\item $N$ is \emph{useful}: If $N(f)$ then $f$ doesn't have small circuits (say $n^{\omega(1)}$).
+	\item $N$ is \emph{large}: $\Prob{f}{N(f)} \geq \Omega(1)$.
+\end{enumerate}
+\end{definition}
+
+The proofs of Razborov-Smolensky Theorem and Switching Lemma are natural. (?)
+
+\sep
+
+Let PRG $G: \{0,1\}^s \rightarrow \{0,1\}^{2s}$ has exponential security ($2^{s^\epsilon}$).
+
+We can construct $\hat{G} : \{0,1\}^s \rightarrow \{0,1\}^{2^{s^\delta}}$, that is ``random access'', given $z$, and compute $\hat{G}(z)$ in poly-time.
+
+[Figure: PRG tree]
+
+The depth of the tree is $s^\delta$. We pick $\delta < \epsilon$.
+
+Say we want the $i$-th element. We don't need to compute the whole tree.
+
+Define $f_z(i) = \hat{G}(z)_i$ (the $i$-th bit of $\hat{G}(z)$).
+$\forall z, f_z \in \Size{s^{o(1)}} = \Size{|i|^{o(1)}}$.
+
+Let $N$ be defined so that $\forall z$, $N(f(z)) = $False. But for random function $f_R$, $N(f_R) =$True with reasonable probability.
+
+\textbf{So if we have strong cryptographic PRG, then we don't have natural proofs for circuit lower bound.}
+%TODO: see book and say more
+
+\section{Easy Witness Lemma}
+
+In the definition of natrual property, we replace the ``largeness'' with ``non-emptyness'': $\Prob{f}{N(f)} \neq 0$. We call it ``\emph{barely natural}'' property.
+
+\begin{theorem}[Paraphrase of Easy Witness Lemma from IKW (IKW used ``sometimes non-empty'')]\label{thm1}
+	If there exists a barely natural property, then $\NEXP \nsubseteq \Ppoly$.
+\end{theorem}
+
+\begin{lemma}
+	If there exists a barely natural property, then $\CAPP \in \NTime{\subexp}$.
+\end{lemma}
+
+\begin{proof} \item
+	\begin{enumerate}
+		\item Given an instance of $\CAPP$, set $m = n^\delta$ (the inverse of the ``usefulness'' function).
+		\item Guess a function $F_n$ so that $N(F_n)$ holds.
+		
+		($F_n$ is an $n$-bit boolean function, given by truth table.)
+		
+		The time to verify is $2^{n^\delta} = 2^{o(n)}$.
+		\item Size$(F_n) \geq n^{O(1)}$ (largeness) %TODO: big or small
+		\item Use BFNW to construct a $G: \{0,1\}^{\poly(n)} \rightarrow \{0,1\}^n$, a PRG that is hard for size $n$.
+		\item Try all seeds to estimate circuit probability.
+	\end{enumerate}
+	The total time is subexponential.
+	%TODO: see book and say more
+\end{proof}
+
+\sep
+
+A \emph{easy witness} (succinct witness) is a circuit $C(i) = y_i$ that computes the $i$-th bit of the witness.
+
+\begin{theorem}[Easy Witness Lemma]
+	All positive instances of all $\NEXP$ relations have easy witnesses iff $\NEXP \subseteq \Ppoly$.
+\end{theorem}
+
+\begin{proof}\item
+	\begin{itemize}
+	\item If $x$ has easy witness: Search for all circuits. Then $\NEXP = \EXP$. And $\EXP \subseteq \Ppoly$. (use the witness circuits to construct the poly-size circuit)
+	\item If $x$ doesn't have easy witness: Let $N_x(y) = R(x,y)$. $N_x$ is a natural property. By \ref{thm1}, $\NEXP \nsubseteq \Ppoly$.
+\end{itemize}
+\end{proof}
+
+\end{document}

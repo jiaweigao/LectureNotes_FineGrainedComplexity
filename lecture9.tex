@@ -1,0 +1,266 @@
+\documentclass[letterpaper, 12pt]{article}
+ 
+\usepackage{jiawei}
+\usepackage{complexity}
+\usepackage{tikz}
+\usepackage{mathptmx}
+
+\headfoot{Derandomization and Circuit Lower Bounds}{}
+ 
+\newcommand{\Perm}{\mathbf{Perm}}
+\newcommand{\CAPP}{\mathbf{CAPP}}
+\newcommand{\PIT}{\mathbf{PIT}}
+\newcommand{\Time}[1]{\mathsf{TIME}[#1]}
+\newcommand{\NTime}[1]{\mathsf{NTIME}[#1]}
+\newcommand{\Size}[1]{\mathrm{Size}(#1)}
+ 
+ 
+\begin{document}
+ 	
+ 
+ 
+\title{\vspace{-50pt} \textsc{\large Fine-Grained Complexity and Algorithms}\\ \vspace{25pt} {\Large \textbf{Lecture 9 : Derandomization and Circuit Lower Bounds}}}
+\author{{\normalsize Instructor: Russell Impagliazzo}\\{\normalsize Scribe: \myname}}
+\date{{\normalsize September 24, 2015}}
+\maketitle 
+ 
+\section{Complexity Classes}
+ 
+\begin{figure}[h]
+\centering
+	\begin{tikzpicture}
+	\node (a) at (0,0) {$\EH$};
+	\node (b) at (0,-1) {$\Sigma_2^\EXP$};
+	\node (c) at (0,-2) {$\NEXP$};
+	\node (d) at (0,-3) {$\EXP$};
+	\node (e) at (0,-4) {$\P^{\#\P}$};
+	\node (f) at (0,-5) {$\PH$};
+	\node (g) at (0,-6) {$\Sigma_2^\P$};
+	\node (h) at (0,-7) {$\NP$};
+	\node (i) at (0,-8) {$\P$};
+	
+	\node (j) at (1.4,-6.5) {$\MA$};
+	\node (k) at (1.4,-7.5) {$\BPP$};
+	
+	\node (l) at (-1.4,-6.5) {\phantom{$\MA$}};
+	\node (m) at (-1.4,-7.5) {\phantom{$\BPP$}};
+	
+	\foreach \from/\to in {a/b,b/c,c/d,d/e,e/f,f/g,g/h,h/i,g/j,j/k,k/i}
+	\draw (\from) -- (\to);
+	\end{tikzpicture}
+	\caption{The relation of complexity classes mentioned in this lecture}
+\end{figure}
+
+\noindent \textbf{1. Toda's Theorem}
+
+\begin{theorem}[Toda]
+	$\PH \subseteq \P^{\#\P}$.
+\end{theorem}
+The proof of Toda's Theorem inlcudes two steps. \\
+\indent \textbf{Step 1:} $\PH \subseteq \BPP^{\#\P}$.
+(By Razborov-Smolensky, consider $\exists$ as big $\vee$ and $\forall$ as big $\wedge$.)\\
+\indent \textbf{Step 2:} $\BPP^{\#\P} \subseteq \P^{\#\P}$.
+
+\bigskip
+
+\noindent \textbf{2. Permanent of matrices}
+
+The \emph{permanent} of an $n \times n$ matrix is defined as
+\[\Perm (M) = \sum_{\sigma} \prod_{i=1}^{n} x_{i, \sigma(i)}\]
+The sum is over all permutations of $n$ elements.
+
+$\Perm$ has \emph{expansion by minors} property: $\Perm(M) = \sum_{i = 1}^n x_{1i} \cdot \Perm(M_{1i})$.
+
+$\Perm$ is equivalent with counting the number of perfect matchings in a bipartite graph.
+
+\begin{theorem}[Valiant]
+	$\Perm$ is $\#\P$-complete.
+\end{theorem}
+
+\bigskip
+
+\noindent \textbf{3. Exponential Hierarchy}
+
+In polynomial hierarchy, a language in $\NP$(=$\Sigma_1^\P$) iff
+\[x \in L \Leftrightarrow \exists y R(x,y), \ |y| \leq \poly (|x|), R \in \P\].
+And $\Sigma_k^\P$ is defined by
+\[x \in L \Leftrightarrow \exists y_1 \forall y_2 \dots \exists y_k R(x,y_1, \dots, y_k), \ |y_i| \leq \poly (|x|), R \in \P\].
+
+Similarly, $\Sigma_1^\EXP$(=$\NEXP$) is defined by
+\[x \in L \Leftrightarrow \exists y R(x,y) \ |y| \leq \exp (|x|), R \in \P\].
+And $\Sigma_k^\EXP$ is defined by \[x \in L \Leftrightarrow \exists y_1 \forall y_2 \dots \exists y_k R(x,y_1, \dots, y_k) \ |y_i| \leq \exp (|x|), R \in \P\].
+
+Here $R \in \P$ is because the query length can be exponential in $|x|$.
+
+\medskip
+
+Like $\Sigma_k^\P$ , we have inductive definition for $\Sigma_k^\EXP $ via oracle machines:
+\[\Sigma_k^\EXP = \NEXP^{\Sigma_{k-1}^\P}\]
+
+By \emph{padding argument} (padding the inputs to exponential length), we get the following theorem:
+
+\begin{theorem}
+	If $\Sigma_k^{\P} = \Sigma_{k+1}^{\P}$, then  $\Sigma_k^{\EXP} = \Sigma_{k+1}^{\EXP}$.
+\end{theorem}
+
+\emph{Fact: Collapses between classes translate upwards. Separations between classes translate downwards.}
+
+\section{Derandomization and Circuit Lower Bounds}
+
+In this lecture we want to show:
+
+\begin{theorem} [IKW]\label{IKW}
+	If $\CAPP \in \Time{2^{n^{o_c(1)}}}$, then $\NEXP \nsubseteq \Ppoly$.
+\end{theorem}
+
+$o_c(1)$ denotes ``computably little $o$ of $1$''. If $\epsilon(n) = O_c(1)$, it means given $n$, we can compute $\epsilon(n)$ efficiently.
+
+\begin{theorem} [KI]
+	If $\PIT \in \Time{2^{n^{o_c(1)}}}$, then $\NEXP \nsubseteq \AlgP / \poly$.
+\end{theorem}
+
+ %TODO: Significance
+
+\section{Kannan's Theorem}
+\begin{theorem}[Kannan]
+	There is a function $f \in \Sigma_3^\EXP$ so that $\Size{f} \geq \Omega(2^n / n)$.
+\end{theorem}
+
+\noindent \textbf{``The hardest function there is''}
+
+\begin{lemma}
+There exists a boolean function $f$ of $n$ variables such that $\Size{f} \geq \Omega(2^n / n)$.
+\end{lemma}
+
+\begin{proof}
+	The $i$-th gate of a circuit can be represented as
+	$g_i = op_i (g_{j_i}, g_{k_i})$, where $op_i$ is the operation, and $g_{j_i}, g_{k_i}$ are the two input gates.
+	Let $c$ be the total number of operations.
+	
+	Since for each gate, there are $c$ choices for $op_i$, and at most $s$ choices for $g_j$ and $g_k$,
+	the number of different circuits with $s$ gates is at most $(c \cdot s^2)^s$.
+	However, the number of different boolean functions of $n$ variables is $2^{2^n}$, which equals the number of all possible truth tables, i.e. the number of $2^n$ binary strings.
+	Therefore $(c \cdot s^2)^s \geq 2^{2^n}$, so that $s \geq \Omega(2^n / n)$.
+\end{proof}
+
+\noindent \textbf{``The first hardest function''}
+
+\begin{lemma}
+There exists a boolean function $f$ of $n$ variables such that for all circuit $C$ of size $O(2^n / n)$, $C$ does not compute $f$, and for all function $g$ prior to $f$ in lexicographic order, there is a $O(2^n / n)$ size circuit $C'$ that computes $g$.
+\end{lemma}
+
+\begin{proof}
+	We can find $f$ using the following steps
+	\begin{enumerate}
+	\item Nondeterministically guess $f$; ($O(2^n)$ time)
+	\item co-nondeterministically guess $C$ and $g$; ($O(2^n)$ time)
+	\item Nondeterministically guess $C'$.  ($O(2^n/n)$ time)
+	\item Compute $C$ on all inputs $x$ and check if $C$ does not compute $f$. Compute $C'$ on all inputs $x$ and check if $C'$ computes $g$. ($O(2^n)$ time)
+	\end{enumerate}
+	The algorithm runs in $\Sigma_3^\EXP$.
+	
+\end{proof}
+
+\section{Meyer's Theorem}
+
+\begin{definition}[locally uniform circuits]
+	A circuit of size $s$ is \emph{locally uniform} if given input $x$ and index $i \in \{1, \dots, s\}$, we can compute $(op_i, j_i, k_i)$ in polynomial time, where $g_i = (op_i, g_{j_i}, g_{k_i})$ is the $i$-th gate.
+\end{definition}
+
+\noindent \textbf{Exercise:} Show that if TM $M$ runs in time $T(|x|)$, then there is a locally uniform circuit $C$ of size $O(T(|x|)^2)$ so that $\forall x, C_{|x|}(x) = M(x)$.
+
+Fischer and Pippenger improved the size of locally uniform circuit from $O(T(|x|)^2)$ to $O(T(|x|) \log T(|x|))$.
+
+\begin{theorem}[Fischer-Pippenger]
+If TM $M$ runs in time $T(|x|)$, then there is a locally uniform circuit $C$ of size $O(T(|x|) \log T(|x|))$ so that $\forall x, C_{|x|}(x) = M(x)$.
+\end{theorem}
+
+\begin{theorem}[Meyer]
+	If $\EXP \subseteq \Ppoly$, then $\EXP \subseteq \Sigma_2^\P$.
+\end{theorem}
+
+\begin{proof}
+	Suppose $L \in \EXP$. Let $C_n$ be a locally uniform circuit computing $L$.
+	
+	The problem of computing the value of gate $i$ of $C_n(x)$ on given $(x,i)$ is in $\EXP$. We call this problem GateL.
+	
+	Assume $\EXP \subseteq \Ppoly$. So GateL $\in \Ppoly$. Let $D$ be the polynomial-size circuit computing GateL. Thus,
+	\[x \in L \Leftrightarrow \exists D, \forall i \in \{1,\dots, s\} \left[ D(x,i) = op_i(D(x,j_i), D(x,k_i)) \mbox{ and } D(x,s)\right],\] where $s$ is the index of the final gate.
+	
+	We can nondeterministically guess circuit $D$, and co-nondeterministically guess the first gate that messes up. Thus $L \in \Sigma_2^\P$.
+\end{proof}
+
+\section{``The Collapsed Bookshelf'' Argument}
+
+Suppose there is a heavy thing on the top level of a bookshelf. We want to argue that there is something heavy on the middle level of the bookshelf.
+\begin{itemize}
+	\item If there is something heavy on the middle level, then we've done.
+	\item If there isn't such a heavy thing on the middle level, then the top level collapses, and the heavy thing on the top level falls to the middle level. Therefore there is something heavy on the middle level.
+\end{itemize}
+
+We use this argument to prove the following theorem.
+
+\begin{theorem}
+	$\Sigma_2^\EXP \nsubseteq \Ppoly$.
+\end{theorem}
+
+\begin{proof}
+	Either $\EXP \subseteq \Ppoly$ or $\EXP \nsubseteq \Ppoly$.
+	\begin{itemize}
+		\item If $\EXP \nsubseteq \Ppoly$, then $\Sigma_2^\EXP \nsubseteq \Ppoly$, because $\EXP \subseteq \Sigma_2^\EXP$.
+		\item If $\EXP \subseteq \Ppoly$, then by Meyer's Theorem, $\EXP = \Sigma_2^\P = \Sigma_3^\P$. Then $\Sigma_2^\EXP = \Sigma_3^\EXP$. By Kannan's Theorem, it contains problems that require $\Omega(2^n/n)$ size circuits. (The bookshelf collapses.)
+	\end{itemize}
+\end{proof}
+
+\subsection{Proof of Theorem \ref{IKW}} %TODO
+
+We introduce two lemmas in proving this theorem.
+
+\begin{lemma} \label{lemma1}
+	If $\Perm \in \Ppoly$, then $\P^\Perm \subseteq \MA$.
+\end{lemma}
+
+\begin{lemma} \label{lemma2}
+	If $\CAPP \in \Time{2^{n^{o_c(1)}}}$, then $\MA \subseteq \NTime{2^{n^{o_c(1)}}}$.
+\end{lemma}
+
+	Assume $\CAPP \subseteq \Time{2^{n^{o_c(1)}}}$. Either $\EXP \subseteq \Ppoly$ or $\EXP \nsubseteq \Ppoly$.
+	\begin{itemize}
+		\item If $\EXP \nsubseteq \Ppoly$, then $\NEXP \nsubseteq \Ppoly$, because $\EXP \subseteq \NEXP$.
+		\item If $\EXP \subseteq \Ppoly$, then $\EXP = \Sigma_2^\P = \P^\Perm$. The first equation is by Meyer's Theorem, and the second equation is by the fact $\Sigma_2^\P \subseteq \PH \subseteq \P^\Perm \subseteq \EXP$, and all these classes collapse to $\Sigma_2^\P$.
+		
+		Thus if $\CAPP \in \Time{2^{n^{o_c(1)}}}$, then By Lemmas \ref{lemma1} and \ref{lemma2}, $\Sigma_3^\P = \EXP \subseteq \NTime{2^{n^{o_c(1)}}}$. So $\NEXP \nsubseteq \Ppoly$.
+	\end{itemize}
+
+
+
+
+
+\subsection{Proof of Lemma \ref{lemma2}}
+%TODO
+
+Use $\CAPP$ to deterministically verify witness.
+
+\iffalse
+\subsection{Proof of Lemma \ref{lemma1}}
+We show that If $\Perm \in \Ppoly$, then $\P^\Perm \in \MA \cap \co \MA$.
+
+Given Matrix $M$, Merlin gives a witness $(v,C)$. We want to verify that $\Perm(M) = v$.
+$C_n$ is a circuit that supposedly computes $\Perm$.
+
+(1) Get $C_{n-1}, \dots, C_1$, where
+\[C_i = C_n\]
+
+(2) Pick a random prime $q$, and check $C_i(\vec{x}) \mod q$.
+
+Compute circuits $D_1, \dots, D_n$, or reject.
+
+If we don't reject, with high probability $D_i = \Perm(M_{i\times i}) \mod q \forall M$.
+
+If $C$ really does compute $\Perm$, we wil never reject..
+
+Say we have $D_i$. We can use expansion by minors to compute $\Perm(M_{(i+1)\times(i+1)})$.
+
+Then, check that $C(M_{(i+1) \times (i+1)}) = \Perm(M_{(i+1) \times (i+1)})$ by plugging in random values.
+\fi
+\end{document}

@@ -1,0 +1,77 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{jiawei}
+
+\RequirePackage{lmodern}
+\RequirePackage{amsmath,amsthm,amssymb,amsfonts}
+\RequirePackage{fancyhdr}
+\RequirePackage{ifthen}
+\RequirePackage{geometry}
+\RequirePackage{paralist}
+
+% This is my name
+\newcommand{\myname}{Jiawei Gao}
+
+%
+\geometry{left=3.2cm,right=3.2cm,top=3.5cm,bottom=3.5cm}
+
+% Lengths
+\setlength{\columnsep}{1cm}
+\setlength\parskip{4pt}
+\setlength\baselineskip{20pt}
+
+
+
+% Fonts
+%\RequirePackage[charter]{mathdesign} %Charter
+%\RequirePackage[utopia]{mathdesign} %
+%\RequirePackage[varg]{txfonts} %Times
+%\RequirePackage{mathptmx}
+%\RequirePackage{mbtimes}
+
+
+
+% Theorems
+%\theoremstyle{plain}
+
+
+\theoremstyle{definition}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem*{corollary}{Corollary}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{exmple}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{note}{Note}
+
+%Header and Footer
+\newcommand{\headfoot}[2]{
+\pagestyle{fancyplain}
+\fancyhead[L]{\ifthenelse{\value{page}=1}{}{#1}}
+\fancyhead[C]{}
+\fancyhead[R]{\ifthenelse{\value{page}=1}{}{#2}}
+\fancyfoot[L]{}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{0pt}
+}
+
+%Title
+\newcommand{\settitle}[1]{\title{\Large \textbf{#1}}}
+\newcommand{\settitles}[2]{\title{\vspace{-50pt} \textsc{\large #1}\\ \vspace{25pt} {\Large \textbf{#2}}}}
+
+% Compact lists
+\renewcommand{\itemize}{\compactitem}
+\renewcommand{\enumerate}{\compactenum}
+
+\newcommand{\btitle}[1]{\bigskip \noindent \textbf{#1}}
+
+\RequirePackage{pifont}
+\newcommand{\sep}{\vspace{10pt}\begin{center}\ding{167} \hspace{20pt}\ding{167} \hspace{20pt}\ding{167} \end{center}\vspace{10pt}}
+\endinput

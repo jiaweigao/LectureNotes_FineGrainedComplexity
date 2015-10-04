@@ -1,0 +1,123 @@
+\documentclass[letterpaper, 12pt]{article}
+ 
+\usepackage{jiawei}
+\usepackage{complexity}
+\usepackage{tikz}
+\usepackage[charter]{mathdesign} 
+
+\headfoot{FGC Notes}{Lecture 11}
+ 
+\newcommand{\Perm}{\mathbf{Perm}}
+\newcommand{\CAPP}{\mathbf{CAPP}}
+\newcommand{\PIT}{\mathbf{PIT}}
+\newcommand{\Time}[1]{\mathsf{TIME}[#1]}
+\newcommand{\NTime}[1]{\mathsf{NTIME}[#1]}
+\newcommand{\Size}[1]{\mathsf{Size}(#1)}
+\newcommand{\Prob}[2]{\mathrm{Prob}_{#1}[#2]}
+ 
+\newcommand{\subexp}{2^{n^{o(1)}}}
+\newcommand{\csat}{\textrm{Circuit-SAT}}
+\newcommand{\ctaut}{\textrm{Circuit-TAUT}}
+\newcommand{\taut}{\textrm{-TAUT}}
+
+ 
+\begin{document}
+	\title{FGC Lecture 11}
+	\date{}
+	\maketitle
+	
+\begin{theorem}
+	If $\csat \in \P$, then $\EXP$ has hard functions (Size$(f) \geq 2^n /n$).
+\end{theorem}
+
+\begin{proof}
+	If $\csat$(which is $\NP$-complete) is in $\P$, then $\PH$ collapses to $\P$. Therefore $\EH$ collapses to $\EXP$. Then $\EXP = \Sigma_3^\EXP$, which contains hard problems (by Kannan's Theorem).
+\end{proof}
+
+\begin{theorem}
+	If $\csat \in \Time{\subexp}$, then $\NEXP \nsubseteq \Ppoly$.
+\end{theorem}
+\begin{proof}
+	If $\EXP \nsubseteq \Ppoly$, then we've done.
+	
+	If $\EXP \subseteq \Ppoly$, by Meyer's Theorem, $\EXP = \Sigma_2^\P$.
+	
+	For $L \in \EXP$, $x \in L \Leftrightarrow \exists y_1 \forall y_2 R(x, y_1, y_2)$.
+	
+	By assumption, $\exists y_1 \forall y_2 R(x, y_1, y_2)$ is in time $\subexp$. So $L \in \NTime{\subexp}$. So $\Sigma_3^\P \subseteq \EXP \subseteq \NTime{\subexp}$.
+	
+	Scaling up, $\exists T(n) = n^{\omega(1)}$, s.t. $\Sigma_3^{T(n)} \subseteq \NEXP$.
+	
+	$\Sigma_3^{T(n)} \nsubseteq \Ppoly$, thus $\NEXP \nsubseteq \Ppoly$.
+\end{proof}
+
+\sep
+
+\begin{theorem}[Williams]
+	If $\csat \in \Time{|C|\cdot 2^n / n^{\omega(1)}}$, then $\NEXP \nsubseteq \Ppoly$.
+\end{theorem}
+
+We prove the nondeterministic version of this theorem: If $\ctaut \in \NTime{|C|\cdot 2^n / n^{\omega(1)}}$, then $\NEXP \nsubseteq \Ppoly$.
+
+\begin{proof}
+	Assume $\NEXP \subseteq \Ppoly$, and $\ctaut\in \NTime{|C|\cdot 2^n / n^{\omega(1)}}$.
+	
+	Let $L \in \NTime{2^n}$. We are going to save time in solving $L$, thus contradicting the nondeterministic time hierarchy theorem.
+	
+	$x \in L \Leftrightarrow \exists y, |y|=2^n, R(x,y)$. $R$ is computable in time $2^n$.
+	
+	Let $C_R$ be a locally computable circuit that computes $R$. By Fischer-Pippenger's Theorem, $|C_R| = O(2^n \cdot n)$. Then,
+	
+	$x \in L \Leftrightarrow \exists (y, g_1, \dots, g_{2^n \cdot n})$, each gate is correct from its inputs, and output is 1.
+	
+	This new relation has succinct witness if $x \in L$:
+	
+	$x \in L \Leftrightarrow \exists C'' \forall i, \left[ (op_i(C''(x, j(i)), C''(x,k(i))) = C''(x,i)) \wedge (C''(x, \mathrm{output}) = \mathrm{True})\right]$
+	
+	Circuit $C''$ is a succinct witness.
+	
+	Let $T_{C''}(i)$ be the problem to check $C''$ on $i$. Then
+	
+	$x \in L \Leftrightarrow \exists C'', T_{C''}(i)$ is a tautology.
+	
+	By assumption, ``$T_{C''}(i)$ is a tautology'' is in $\NTime{2^{n'}/ {n'}^{\omega(1)}}$, where $n' = n + \log n$, equals $\NTime{2^{n}/ {n}^{\omega(1)}}$.
+	
+	So $L \in \NTime{2^{n}/ {n}^{\omega(1)}}$. Thus $\NTime{2^n} \subseteq \NTime{2^{n}/ {n}^{\omega(1)}}$, contradicting Time Hierarchy Theorem.
+\end{proof}
+
+\sep
+
+\begin{theorem}[Williams]
+	$\forall$ depth $d$, $\exists \epsilon$, s.t. $\ACC_6$-SAT $\in \Time{2^{n - n^\epsilon}}$.
+\end{theorem}
+
+\begin{lemma}\label{lemma1}
+	If $\mathscr{C}$ is a class of circuits so that $\mathscr{C}\taut \in \NTime{2^n /n^{\omega(1)}}$ and $\P \subseteq \mathscr{C}$, then $\ctaut \in \NTime{2^n/n^{\omega(1)}}$.
+\end{lemma}
+
+If we have a circuit class $\mathscr{C}$ so that $\P \subseteq \mathscr{C}$, then it's not so easy, so it's good.
+
+If $\P \nsubseteq \mathscr{C}$, then the result for $\ctaut$ applies to $\mathscr{C}\taut$.
+
+\begin{corollary}
+	If $\mathscr{C}\taut \in \NTime{2^n/n^{\omega(1)}}$, then $\NEXP \nsubseteq \mathscr{C}$.
+\end{corollary}
+
+\begin{corollary}
+	$\NEXP \nsubseteq \ACC_6$.
+\end{corollary}
+
+\begin{proof}[Proof of Lemma \ref{lemma1}]
+	If $\P \subseteq \mathscr{C}$, then $\Ppoly \subseteq \mathscr{C}$.
+	
+	Let $D$ be an instance of $\ctaut$, and let $g_1, \dots , g_m$ be its gates. Each $g_i$ defines a subcircuit of $D$, i.e. for each $g_i$, $\exists C_i \in \mathscr{C}$ s.t. $\forall x, g_i(x) = C_i(x)$.
+	
+	Our algorithm first non-deterministically guesses each $C_i$ for $i = 1, \dots , m$. Then, it verifies
+	\[\forall x, \left[C_i(x) = op_i(C_{j(i)}(x),C_{k(i)}(x) )\right]\]
+	Because $C_i$, $C_{j(i)}$ and $C_{k(i)}$ are all in $\mathscr{C}$ ($\mathscr{C}$ is closed), the verification can be done by $\mathscr{C}\taut$.
+	
+	We do the verification once per gate $i$, thus it is polynomial in input size.
+	
+	Finally we verify $C_{\text{output}}(x)$ is tautology.
+\end{proof}
+\end{document}
