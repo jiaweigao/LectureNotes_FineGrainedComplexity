@@ -26,7 +26,9 @@
  
 \section{Complexity Classes}
  
-\begin{figure}[h]
+ Figure \ref{fig1} shows the relation of complexity classes mentioned in this lecture.
+ 
+\begin{figure}[h] \label{fig1}
 \centering
 	\begin{tikzpicture}
 	\node (a) at (0,0) {$\EH$};
@@ -48,7 +50,7 @@
 	\foreach \from/\to in {a/b,b/c,c/d,d/e,e/f,f/g,g/h,h/i,g/j,j/k,k/i}
 	\draw (\from) -- (\to);
 	\end{tikzpicture}
-	\caption{The relation of complexity classes mentioned in this lecture}
+	\caption{complexity classes}
 \end{figure}
 
 \noindent \textbf{1. Toda's Theorem}
@@ -82,13 +84,13 @@ $\Perm$ is equivalent with counting the number of perfect matchings in a biparti
 \noindent \textbf{3. Exponential Hierarchy}
 
 In polynomial hierarchy, a language in $\NP$(=$\Sigma_1^\P$) iff
-\[x \in L \Leftrightarrow \exists y R(x,y), \ |y| \leq \poly (|x|), R \in \P\].
+\[x \in L \Leftrightarrow \exists y R(x,y), \ |y| \leq \poly (|x|), R \in \P.\]
 And $\Sigma_k^\P$ is defined by
-\[x \in L \Leftrightarrow \exists y_1 \forall y_2 \dots \exists y_k R(x,y_1, \dots, y_k), \ |y_i| \leq \poly (|x|), R \in \P\].
+\[x \in L \Leftrightarrow \exists y_1 \forall y_2 \dots \exists y_k R(x,y_1, \dots, y_k), \ |y_i| \leq \poly (|x|), R \in \P.\]
 
 Similarly, $\Sigma_1^\EXP$(=$\NEXP$) is defined by
-\[x \in L \Leftrightarrow \exists y R(x,y) \ |y| \leq \exp (|x|), R \in \P\].
-And $\Sigma_k^\EXP$ is defined by \[x \in L \Leftrightarrow \exists y_1 \forall y_2 \dots \exists y_k R(x,y_1, \dots, y_k) \ |y_i| \leq \exp (|x|), R \in \P\].
+\[x \in L \Leftrightarrow \exists y R(x,y) \ |y| \leq \exp (|x|), R \in \P.\]
+And $\Sigma_k^\EXP$ is defined by \[x \in L \Leftrightarrow \exists y_1 \forall y_2 \dots \exists y_k R(x,y_1, \dots, y_k) \ |y_i| \leq \exp (|x|), R \in \P.\]
 
 Here $R \in \P$ is because the query length can be exponential in $|x|$.
 
@@ -107,13 +109,15 @@ By \emph{padding argument} (padding the inputs to exponential length), we get th
 
 \section{Derandomization and Circuit Lower Bounds}
 
-In this lecture we want to show:
+In this lecture we want to prove that derandomization of $\CAPP$ implies circuit lower bounds.
 
 \begin{theorem} [IKW]\label{IKW}
 	If $\CAPP \in \Time{2^{n^{o_c(1)}}}$, then $\NEXP \nsubseteq \Ppoly$.
 \end{theorem}
 
 $o_c(1)$ denotes ``computably little $o$ of $1$''. If $\epsilon(n) = O_c(1)$, it means given $n$, we can compute $\epsilon(n)$ efficiently.
+
+Derandomization of $\PIT$ implies a similar lower bound for algebraic circuits.
 
 \begin{theorem} [KI]
 	If $\PIT \in \Time{2^{n^{o_c(1)}}}$, then $\NEXP \nsubseteq \AlgP / \poly$.
@@ -122,6 +126,9 @@ $o_c(1)$ denotes ``computably little $o$ of $1$''. If $\epsilon(n) = O_c(1)$, it
  %TODO: Significance
 
 \section{Kannan's Theorem}
+
+Kannan's Theorem shows there are hard functions in $\Sigma_3^\EXP$.
+
 \begin{theorem}[Kannan]
 	There is a function $f \in \Sigma_3^\EXP$ so that $\Size{f} \geq \Omega(2^n / n)$.
 \end{theorem}
@@ -135,8 +142,7 @@ There exists a boolean function $f$ of $n$ variables such that $\Size{f} \geq \O
 \begin{proof}
 	The $i$-th gate of a circuit can be represented as
 	$g_i = op_i (g_{j_i}, g_{k_i})$, where $op_i$ is the operation, and $g_{j_i}, g_{k_i}$ are the two input gates.
-	Let $c$ be the total number of operations.
-	
+	Let $c$ be the number of operations, and let $s$ be the circuit size.
 	Since for each gate, there are $c$ choices for $op_i$, and at most $s$ choices for $g_j$ and $g_k$,
 	the number of different circuits with $s$ gates is at most $(c \cdot s^2)^s$.
 	However, the number of different boolean functions of $n$ variables is $2^{2^n}$, which equals the number of all possible truth tables, i.e. the number of $2^n$ binary strings.
@@ -241,26 +247,33 @@ We introduce two lemmas in proving this theorem.
 
 Use $\CAPP$ to deterministically verify witness.
 
-\iffalse
 \subsection{Proof of Lemma \ref{lemma1}}
 We show that If $\Perm \in \Ppoly$, then $\P^\Perm \in \MA \cap \co \MA$.
 
-Given Matrix $M$, Merlin gives a witness $(v,C)$. We want to verify that $\Perm(M) = v$.
-$C_n$ is a circuit that supposedly computes $\Perm$.
+Given Matrix $M$, Merlin gives a value $v$. We want to verify that $\Perm(M) = v$.
+Suppose $C_n$ is a circuit that supposedly computes $\Perm$.
 
-(1) Get $C_{n-1}, \dots, C_1$, where
-\[C_i = C_n\]
+For $i = 1, \dots, n$, we define circuit $C_i$ to be
+	\[C_i = C_n
+	\left(
+	\begin{array}{c | c}
+	\begin{matrix}
+	1 & &\\
+	& \ddots &\\
+	& & 1
+	\end{matrix} & \Large{\mbox{$\mathbf{0}$}}\\ \hline
+	\Large{\mbox{$\mathbf{0}$}} & \Large{\mbox{$M_{i\times i}$}} 
+	\end{array}
+	\right)
+	\]
+From the $C_n$ given by Merlin, we compute $C_{n-1}, \dots, C_1$.
 
-(2) Pick a random prime $q$, and check $C_i(\vec{x}) \mod q$.
+We pick a random prime $q$. Say we have circuit $C_i$. We can use expansion by minors to compute $\Perm(M_{(i+1)\times(i+1)}) \mod q$. Then, check that $C_i(M_{(i+1) \times (i+1)}) \equiv \Perm(M_{(i+1) \times (i+1)}) \mod q$ by plugging in random values.
 
-Compute circuits $D_1, \dots, D_n$, or reject.
+If we don't reject, with high probability that for any matrix $M_{i\times i}$,  $C_i$ computes its permanent mod $q$.
 
-If we don't reject, with high probability $D_i = \Perm(M_{i\times i}) \mod q \forall M$.
+If $C_n$ really does compute $\Perm$, we will never reject for $i = 1, \dots, n$.
 
-If $C$ really does compute $\Perm$, we wil never reject..
+If we accept the circuit $C_n$, we can use $C_n$ to simulate the $\Perm$ oracle.
 
-Say we have $D_i$. We can use expansion by minors to compute $\Perm(M_{(i+1)\times(i+1)})$.
-
-Then, check that $C(M_{(i+1) \times (i+1)}) = \Perm(M_{(i+1) \times (i+1)})$ by plugging in random values.
-\fi
 \end{document}
